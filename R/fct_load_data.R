@@ -1,11 +1,11 @@
 .data_path <- function() {
-  system.file("extdata", "data", package = "StreamFindData")
+  system.file("extdata", "data", package = "streamfind.data")
 }
 
 #' get_mass_spec_files
 #'
 #' @description Gets full paths of all mass spectrometry files (mzML, mzXML)
-#' in the StreamFindData package.
+#' in the streamfind.data package.
 #'
 #' @return A character vector of absolute file paths.
 #'

@@ -1,15 +1,17 @@
-# StreamFindData
+# streamfind.data
 
 R package with supporting data and other assets for the R package [StreamFind](https://github.com/odea-project/StreamFind).
 
-<img src="inst/extdata/logos/logo_StreamFind.png" width="50%" style="display: block; margin: auto;" />
+<p align="center">
+  <img src="inst/extdata/logos/logo_StreamFind.png" width="50%" />
+</p>
 
 ## Installation
 
 With R (>= 4.2.0) configured and [pak](https://pak.r-lib.org/) installed:
 
 ``` r
-pak::pkg_install("odea-project/StreamFindData")
+pak::pkg_install("odea-project/streamfind.data")
 ```
 
 ## Data Overview

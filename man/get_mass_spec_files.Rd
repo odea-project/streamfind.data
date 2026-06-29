@@ -11,5 +11,5 @@ A character vector of absolute file paths.
 }
 \description{
 Gets full paths of all mass spectrometry files (mzML, mzXML)
-in the StreamFindData package.
+in the streamfind.data package.
 }

@@ -1,180 +1,218 @@
-
-#' get_ms_file_paths
-#'
-#' @description Gets the full paths of ".mzML" and ".mzXML" files in the
-#' \pkg{StreamFindData} package.
-#'
-#' @return A character vector with the full paths of MS files.
-#'
-#' @export
-#'
-get_ms_file_paths <- function() {
-  r_path <- system.file(package = "StreamFindData", dir = "extdata")
-  files <- list.files(r_path, pattern = ".mzML|.mzXML", full.names = TRUE)
-  return(files)
+.data_path <- function() {
+  system.file("extdata", "data", package = "streamfind.data")
 }
 
-
-#' get_ms_file_descriptions
+#' get_mass_spec_files
 #'
-#' @description A table with a description of the ".mzML" and ".mzXML" files
-#' in the \pkg{StreamFindData} package.
+#' @description Gets full paths of all mass spectrometry files (mzML, mzXML)
+#' in the streamfind.data package.
 #'
-#' @return A \linkS4class{data.table} with details for each ".mzML" and
-#' ".mzXML" file.
+#' @return A character vector of absolute file paths.
 #'
 #' @export
-#'
-get_ms_file_descriptions <- function() {
-
-  files <- get_ms_file_paths()
-
-  df_files_desc <- data.frame(
-    N. = seq_len(length(files)),
-    file_type = rep("MS", 32),
-    file_name = basename(files),
-    device = c(
-      rep("Agilent Q-TOF", 27),
-      rep("Schimadzu Q-Trap", 1),
-      rep("Sciex Q-Trap", 2),
-      rep("Thermo Orbitrap", 2)
-    ),
-    data_type = c(
-      rep("centroid", 6),
-      rep("profile", 3),
-      rep("centroid", 18),
-      rep("profile", 3),
-      rep("profile", 2)
-    ),
-    ac_mode = c(
-      rep("MS/MS", 27),
-      rep("MRM", 3),
-      rep("MS", 2)),
-    polarity = c(
-      rep("positive", 9),
-      rep("negative", 3),
-      rep("positive",3),
-      rep("negative", 3),
-      rep("positive",3),
-      rep("negative", 3),
-      rep("positive",3),
-      rep("negative", 1),
-      rep("positive", 2),
-      rep("positive", 2)
-      ),
-    description = c(
-      rep("Basic centroided MS data as mzML spiked with chemical
-        and internal standards (CS and IS, respectively).", 3),
-      rep("Basic centroided MS data as mzXML spiked with chemical
-        and internal standards (CS and IS, respectively).", 3),
-      rep("Basic profile MS data as mzML spiked with CS and IS.", 3),
-      rep("Blank MS data as mzML spiked with IS.", 6),
-      rep("Wastewater secondary effluent MS data as mzML spiked with IS.", 6),
-      rep("Wastewater secondary effluent treated with ozonated
-        strong water MS data as mzML spiked with IS.", 6),
-      rep("MRM acquisition of estrogenic compounds.", 1),
-      rep("MRM acquisition of a nitrosamine mixture.", 1),
-      rep("MRM acquisition of chemical and internal standards, as in the
-          hrms files", 1),
-      rep("Trimed MS1 only orbitrap files from UDE
-          in profile mode and format mzML", 1),
-      rep("Trimed MS1 only orbitrap files from UDE
-          in profile mode and format mzXML", 1)
-    )
+get_mass_spec_files <- function() {
+  d <- .data_path()
+  list.files(
+    file.path(d, "mass_spec"),
+    pattern = "\\.(mzML|mzXML)$",
+    full.names = TRUE,
+    recursive = TRUE
   )
-
-  return(df_files_desc)
 }
 
-
-
-#' get_ms_tof_spiked_chemicals
+#' get_mass_spec_wastewater_files
 #'
-#' @description List of chemicals spiked to TOF ".mzML" and ".mzXML" files.
+#' @description Gets full paths of wastewater project TOF-MS files (blanks,
+#' influent, and ozonated effluent in positive and negative polarity).
 #'
-#' @return A \linkS4class{data.table} with the list of chemicals spiked in
-#' samples corresponding to the TOF ".mzML" and ".mzXML" files.
-#'
-#' @importFrom data.table data.table fread setnames copy
+#' @return A character vector of absolute file paths.
 #'
 #' @export
-#'
-get_ms_tof_spiked_chemicals <- function() {
-  r_path <- system.file(package = "StreamFindData", dir = "extdata")
-  db <- paste0(r_path, "/tof_spiked_chemicals.csv")
-  db <- fread(db)
-  db$ionization <- "positive"
-  db$mz_pos <- db$mass + 1.0073
-  db$mz_neg <- db$mass - 1.0073
-  db$ionization[grepl("neg", db$comment)] <- "both"
-  db$tag[db$tag %in% "MIX1"] <- "S"
-  db$in_file <- "1-6"
-  db$in_file[db$tag %in% "IS"] <- "1-27"
-  return(db)
+get_mass_spec_wastewater_files <- function() {
+  d <- .data_path()
+  list.files(
+    file.path(d, "mass_spec", "wastewater"),
+    pattern = "\\.mzML$",
+    full.names = TRUE
+  )
 }
 
-
-
-#' get_ms_tof_spiked_chemicals_with_ms2
+#' get_mass_spec_basic_tof_files
 #'
-#' @description List of chemicals spiked to TOF ".mzML" and ".mzXML" files
-#' including fragmentation pattern acquired with DDA.
+#' @description Gets full paths of basic TOF files (centroid mzML, centroid
+#' mzXML, and profile mzML formats).
 #'
-#' @return A \linkS4class{data.table} with the list of chemicals spiked in
-#' samples corresponding to the TOF ".mzML" and ".mzXML" files.
-#'
-#' @importFrom data.table data.table fread setnames copy
+#' @return A character vector of absolute file paths.
 #'
 #' @export
-#'
-get_ms_tof_spiked_chemicals_with_ms2 <- function() {
-  r_path <- system.file(package = "StreamFindData", dir = "extdata")
-  db <- paste0(r_path, "/tof_spiked_chemicals_ms2.csv")
-  db <- fread(db)
-  db$ionization <- "positive"
-  db$mz_pos <- db$mass + 1.0073
-  db$mz_neg <- db$mass - 1.0073
-  db$ionization[grepl("neg", db$comment)] <- "both"
-  db$tag[db$tag %in% "MIX1"] <- "S"
-  db$in_file <- "1-6"
-  db$in_file[db$tag %in% "IS"] <- "1-27"
-  return(db)
+get_mass_spec_basic_tof_files <- function() {
+  d <- .data_path()
+  list.files(
+    file.path(d, "mass_spec", "basic_tof"),
+    pattern = "\\.(mzML|mzXML)$",
+    full.names = TRUE
+  )
 }
 
-
-
-#' get_ms_mrm_spiked_estrogens
+#' get_mass_spec_basic_orbitrap_files
 #'
-#' @description List of estrogens spiked to ".mzML" files in MRM mode.
+#' @description Gets full paths of basic Orbitrap files (profile mzML and
+#' mzXML formats).
 #'
-#' @return A \linkS4class{data.table} with the list of estrogens spiked in
-#' sample corresponding to the ".mzML" file in MRM mode with negative polarity.
-#'
-#' @importFrom data.table data.table fread setnames
+#' @return A character vector of absolute file paths.
 #'
 #' @export
-#'
-get_ms_mrm_spiked_estrogens <- function() {
-  r_path <- system.file(package = "StreamFindData", dir = "extdata")
-  db <- paste0(r_path, "/ms_spiked_estrogens.csv")
-  db <- fread(db)
-  db$ionization <- "negative"
-  db$in_file <- "28"
-
-  return(db)
+get_mass_spec_basic_orbitrap_files <- function() {
+  d <- .data_path()
+  list.files(
+    file.path(d, "mass_spec", "basic_orbitrap"),
+    pattern = "\\.(mzML|mzXML)$",
+    full.names = TRUE
+  )
 }
 
-#' get_raman_file_paths
+#' get_mass_spec_mrm_files
 #'
-#' @description Gets the full paths of ".asc" Raman files in the
-#' \pkg{StreamFindData} package.
+#' @description Gets full paths of MRM (Multiple Reaction Monitoring) files
+#' for estrogens, nitrosamines, and environmental standards.
 #'
-#' @return A character vector with the full paths of Raman files.
+#' @return A character vector of absolute file paths.
 #'
 #' @export
+get_mass_spec_mrm_files <- function() {
+  d <- .data_path()
+  list.files(
+    file.path(d, "mass_spec", "mrm"),
+    pattern = "\\.mzML$",
+    full.names = TRUE,
+    recursive = TRUE
+  )
+}
+
+#' get_mass_spec_mrm_environment_files
 #'
-get_raman_file_paths <- function() {
-  r_path <- system.file(package = "StreamFindData", dir = "extdata")
-  files <- list.files(r_path, pattern = ".asc", full.names = TRUE)
-  return(files)
+#' @description Gets full paths of MRM environment standards files.
+#'
+#' @return A character vector of absolute file paths.
+#'
+#' @export
+get_mass_spec_mrm_environment_files <- function() {
+  d <- .data_path()
+  list.files(
+    file.path(d, "mass_spec", "mrm", "environment"),
+    pattern = "\\.mzML$",
+    full.names = TRUE
+  )
+}
+
+#' get_mass_spec_mrm_estrogens_files
+#'
+#' @description Gets full paths of MRM estrogens files (negative polarity).
+#'
+#' @return A character vector of absolute file paths.
+#'
+#' @export
+get_mass_spec_mrm_estrogens_files <- function() {
+  d <- .data_path()
+  list.files(
+    file.path(d, "mass_spec", "mrm", "estrogens"),
+    pattern = "\\.mzML$",
+    full.names = TRUE
+  )
+}
+
+#' get_mass_spec_mrm_nitrosamines_files
+#'
+#' @description Gets full paths of MRM nitrosamines files (positive polarity).
+#'
+#' @return A character vector of absolute file paths.
+#'
+#' @export
+get_mass_spec_mrm_nitrosamines_files <- function() {
+  d <- .data_path()
+  list.files(
+    file.path(d, "mass_spec", "mrm", "nitrosamines"),
+    pattern = "\\.mzML$",
+    full.names = TRUE
+  )
+}
+
+#' get_raman_files
+#'
+#' @description Gets full paths of Raman spectroscopy .asc files (Bevacizumab
+#' drug product and blank measurements).
+#'
+#' @return A character vector of absolute file paths.
+#'
+#' @export
+get_raman_files <- function() {
+  d <- .data_path()
+  list.files(
+    file.path(d, "raman"),
+    pattern = "\\.asc$",
+    full.names = TRUE
+  )
+}
+
+#' get_mass_spec_wastewater_suspects_csv
+#'
+#' @description Gets the path to the wastewater suspects CSV file containing
+#' target compounds for screening.
+#'
+#' @return A character string with the absolute file path.
+#'
+#' @export
+get_mass_spec_wastewater_suspects_csv <- function() {
+  d <- .data_path()
+  file.path(d, "mass_spec", "wastewater", "suspects.csv")
+}
+
+#' get_mass_spec_wastewater_internal_standards_csv
+#'
+#' @description Gets the path to the wastewater internal standards CSV file.
+#'
+#' @return A character string with the absolute file path.
+#'
+#' @export
+get_mass_spec_wastewater_internal_standards_csv <- function() {
+  d <- .data_path()
+  file.path(d, "mass_spec", "wastewater", "internal_standards.csv")
+}
+
+#' get_mass_spec_basic_tof_suspects_csv
+#'
+#' @description Gets the path to the basic TOF suspects CSV file containing
+#' target compounds for screening.
+#'
+#' @return A character string with the absolute file path.
+#'
+#' @export
+get_mass_spec_basic_tof_suspects_csv <- function() {
+  d <- .data_path()
+  file.path(d, "mass_spec", "basic_tof", "suspects.csv")
+}
+
+#' get_mass_spec_basic_tof_internal_standards_csv
+#'
+#' @description Gets the path to the basic TOF internal standards CSV file.
+#'
+#' @return A character string with the absolute file path.
+#'
+#' @export
+get_mass_spec_basic_tof_internal_standards_csv <- function() {
+  d <- .data_path()
+    file.path(d, "mass_spec", "basic_tof", "internal_standards.csv")
+}
+
+#' get_mass_spec_mrm_estrogens_csv
+#'
+#' @description Gets the path to the MRM estrogens CSV file with target and
+#' product m/z values for estrogenic compounds.
+#'
+#' @return A character string with the absolute file path.
+#'
+#' @export
+get_mass_spec_mrm_estrogens_csv <- function() {
+  d <- .data_path()
+  file.path(d, "mass_spec", "mrm", "estrogens", "ms_spiked_estrogens.csv")
 }

@@ -1,9 +1,9 @@
 # streamfind.data
 
-R package with supporting data and other assets for the R package [StreamFind](https://github.com/odea-project/StreamFind).
+R package with supporting data and other assets for the R package [streamfind](https://github.com/odea-project/streamfind).
 
 <p align="center">
-  <img src="inst/extdata/logos/streamfind.png" width="50%" />
+  <img src="inst/extdata/logos/streamfind.png" width="70%" />
 </p>
 
 ## Installation
